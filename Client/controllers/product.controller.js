@@ -40,7 +40,16 @@ export const ProductController = (() => {
             }
         }
 
-        async getProduct(req, res, next) { }
+        async getProduct(req, res, next) {
+            try {
+                const { id } = req.params
+                this.client.getProduct({ id }, (error, data) => {
+                    return error ? res.json({ error }) : res.json(data)
+                })
+            } catch (error) {
+                next(error)
+            }
+        }
         async newProduct(req, res, next) {
             try {
                 const { title, price } = req.body

@@ -8,10 +8,23 @@ export async function listProduct(call, cb) {
         cb(error, null)
     }
 }
-export async function getProduct(call, cb) { }
+export async function getProduct(call, cb) {
+    try {
+        const { id } = call.request
+        const product = await ProductModel.findOne({ id })
+        if (!product) {
+            const err = new Error("no product found with this id")
+            cb(err, null)
+        }
+        cb(null, product)
+    } catch (error) {
+        cb(error, null)
+    }
+}
 export async function newProduct(call, cb) {
     try {
         const { title, price } = call.request
+
         await ProductModel.create({ title, price })
         cb(null, { status: "created" })
     } catch (error) {
