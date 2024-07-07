@@ -1,27 +1,59 @@
-import grpc from "@grpc/grpc-js"
-import protoLoader from "@grpc/proto-loader"
-import path from "path"
-
+import grpc from "@grpc/grpc-js";
+import protoLoader from "@grpc/proto-loader";
+import path from "path";
 import autoBind from "auto-bind";
 
+// Get the directory name of the current module using import.meta.url
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-const protoPath = path.join("../", "../", "Protos", "product.proto")
-const productProto = protoLoader.loadSync(protoPath)
-const { productPackage } = grpc.loadPackageDefinition(productProto)
+console.log(__dirname);
+// Construct the path to product.proto using __dirname
+const protoPath = path.resolve(__dirname,
+    "..", "..",
+    "Protos/product.proto");
 
-const productServiceUrl = "localhost:4002";
-
-const productClient = new productPackage.PrductService(productServiceUrl, grpc.credentials.createInsecure())
+const productProto = protoLoader.loadSync(protoPath);
+const { productPackage } = grpc.loadPackageDefinition(productProto);
+const productServiceUrl = "localhost:4001";
 
 export const ProductController = (() => {
     class ProductController {
         constructor() {
-            autoBind(this)
+            autoBind(this);
+            this.client = new productPackage
+                .ProductService(
+                    productServiceUrl,
+                    grpc.credentials.createInsecure()
+                );
         }
 
-        async listProduct(req, res, next) { }
+        async listProduct(req, res, next) {
+            try {
+                this.client.listProduct(null, (error, data) => {
+                    if (error) {
+                        return res.json({ error })
+                    }
+                    return res.json(data)
+                })
+            } catch (error) {
+                next(error)
+            }
+        }
+
         async getProduct(req, res, next) { }
-        async newProduct(req, res, next) { }
+        async newProduct(req, res, next) {
+            try {
+                const { title, price } = req.body
+                this.client.newProduct({ title, price }, (error, data) => {
+                    if (error) return res.json({ error });
+
+                    return res.json({ data })
+                })
+
+            } catch (error) {
+                next(error)
+            }
+        }
         async updateProduct(req, res, next) { }
         async deleteProduct(req, res, next) { }
     }
