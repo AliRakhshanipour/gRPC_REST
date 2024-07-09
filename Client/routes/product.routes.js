@@ -4,8 +4,8 @@ const router = Router()
 
 router.get("/list", ProductController.listProduct)
 router.post("/create", ProductController.newProduct)
-router.get("/update", ProductController.updateProduct)
-router.get("/delete/:id", ProductController.deleteProduct)
+router.patch("/update/:id", ProductController.updateProduct)
+router.delete("/delete/:id", ProductController.deleteProduct)
 router.get("/:id", ProductController.getProduct)
 
 export { router as ProductRoutes }

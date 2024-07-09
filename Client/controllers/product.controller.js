@@ -63,8 +63,31 @@ export const ProductController = (() => {
                 next(error)
             }
         }
-        async updateProduct(req, res, next) { }
-        async deleteProduct(req, res, next) { }
+        async deleteProduct(req, res, next) {
+            try {
+                const { id } = req.params
+                this.client.deleteProduct({ id }, (error, data) => {
+                    if (error) return res.json(error);
+                    return res.json({ data })
+                })
+            } catch (error) {
+                next(error)
+            }
+        }
+        async updateProduct(req, res, next) {
+            try {
+                const { id } = req.params
+                const { title, price } = req.body
+                this.client.updateProduct({
+                    id, title, price
+                }, (error, data) => {
+                    if (error) return res.json(error);
+                    return res.json({ data })
+                })
+            } catch (error) {
+                next(error)
+            }
+        }
     }
     return new ProductController()
 })()
