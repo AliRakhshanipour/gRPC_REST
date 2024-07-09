@@ -21,6 +21,7 @@ export async function getProduct(call, cb) {
         cb(error, null)
     }
 }
+
 export async function newProduct(call, cb) {
     try {
         const { title, price } = call.request
@@ -31,6 +32,39 @@ export async function newProduct(call, cb) {
         cb(error, null)
     }
 }
-export async function updateProduct(call, cb) { }
-export async function deleteProduct(call, cb) { }
+export async function deleteProduct(call, cb) {
+    try {
+        const {
+            id
+        } = call.request
+        const product = await ProductModel.findOne({ id })
+        if (!product) {
+            const error = new Error("no product found with this id to delete it")
+            cb(error, null);
+        }
+
+        await product.deleteOne()
+        cb(null, {
+            status: "product deleted"
+        })
+    } catch (error) {
+        cb(error, null)
+    }
+}
+export async function updateProduct(call, cb) {
+    try {
+        const { id, price, title } = call.request
+        const product = await ProductModel.findOne({ id })
+        if (!product) {
+            const error = new Error("no product found with this id to update it")
+            cb(error, null);
+        }
+        await product.updateOne({ price, title })
+        await product.save()
+
+        cb(null, { status: "product updated successfully" })
+    } catch (error) {
+        cb(error, null)
+    }
+}
 
